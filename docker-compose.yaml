@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  sports-planner:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: outdoor-sports-planner
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+      - TZ=Asia/Kolkata
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./logs:/app/logs:rw
+      - logs_volume:/app/logs
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    healthcheck:
+      test: ["CMD", "python", "-c", "import os; exit(0) if os.path.exists('/app/logs') else exit(1)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  logs_volume:
+    driver: local
